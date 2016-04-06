@@ -22,7 +22,7 @@ public class Tester {
         W3.print();
         S3.setPuzzle(W3);
         System.out.println(S3.getSolution());
-        
+
         HiRiQ W4 = new HiRiQ((byte) 3);
         HiRiQSolver S4 = new HiRiQSolver(W4);
         W4.print();

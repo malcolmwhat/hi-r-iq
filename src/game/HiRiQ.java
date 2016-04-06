@@ -1,5 +1,11 @@
 package game;
 
+/**
+ * The HiRiQ class is a compact representation of the puzzle. None of the
+ * provided methods (constructor, IsSolved, store, load, print) were
+ * modified. However there is the compareTo method which allows the HiRiQ's
+ * to be sorted using Comparable
+ */
 public class HiRiQ implements Comparable<HiRiQ> {
     // int is used to reduce storage to a minimum...
     public int config;
@@ -143,6 +149,9 @@ public class HiRiQ implements Comparable<HiRiQ> {
 
     }
 
+    /**
+     * Used to implement Comparable.
+     */
     @Override
     public int compareTo(HiRiQ puzzle) {
         if (this.config < puzzle.config) {

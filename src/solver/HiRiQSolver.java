@@ -1,25 +1,23 @@
 package solver;
 
-import java.util.LinkedList;
-import java.util.Stack;
 import game.HiRiQ;
+import java.util.Stack;
+import java.util.LinkedList;
 
-/*
- * This class handles the solving of Hi-R-IQ puzzles
+/**
+ * This is the class that we interact with from the highest level. It sets up
+ * the game tree and calls the appropriate solving methods. Its method
+ * getSolution(boolean[]) is the method you will want to interact with.
  */
 public class HiRiQSolver {
     private GameTree game;
     private LinkedList<String> solution;
     private boolean solved;
-    private Stack<String> reversedSolution;
-    public static final int[][] triplets = { { 0, 1, 2 }, { 3, 4, 5 }, { 6, 7, 8 }, { 7, 8, 9 }, { 8, 9, 10 },
-            { 9, 10, 11 }, { 10, 11, 12 }, { 13, 14, 15 }, { 14, 15, 16 }, { 15, 16, 17 }, { 16, 17, 18 },
-            { 17, 18, 19 }, { 20, 21, 22 }, { 21, 22, 23 }, { 22, 23, 24 }, { 23, 24, 25 }, { 24, 25, 26 },
-            { 27, 28, 29 }, { 30, 31, 32 }, { 12, 19, 26 }, { 11, 18, 25 }, { 2, 5, 10 }, { 5, 10, 17 }, { 10, 17, 24 },
-            { 17, 24, 29 }, { 24, 29, 32 }, { 1, 4, 9 }, { 4, 9, 16 }, { 9, 16, 23 }, { 16, 23, 28 }, { 23, 28, 31 },
-            { 0, 3, 8 }, { 3, 8, 15 }, { 8, 15, 22 }, { 15, 22, 27 }, { 22, 27, 30 }, { 7, 14, 21 }, { 6, 13, 20 } };
+    private Stack<String> reversedSolution; // Used to reverse the solution
+                                            // when we travel backwards up
+                                            // the tree.
 
-    /*
+    /**
      * Constructs a solver object which decouples the HiRiQ configuration from
      * the actual solution of these configurations.
      */
@@ -28,7 +26,15 @@ public class HiRiQSolver {
         this.solved = false;
     }
 
-    /*
+    /**
+     * Sets up a dummy solver.
+     */
+    public HiRiQSolver() {
+        HiRiQ temp = new HiRiQ((byte) 0);
+        this.setPuzzle(temp);
+    }
+
+    /**
      * Allows the use of the same solver for different puzzles.
      */
     public void setPuzzle(HiRiQ puzzle) {
@@ -36,7 +42,7 @@ public class HiRiQSolver {
         this.solved = false;
     }
 
-    /*
+    /**
      * Wrapper that checks if it is solved and returns the solution as a string.
      */
     public String getSolution() {
@@ -47,28 +53,45 @@ public class HiRiQSolver {
         return this.solution.toString();
     }
 
-    /*
-     * Builds a tree while looking for the solution. The current puzzle's
-     * configuration is the root of the tree. The path from the found solution
-     * to the start is the reverse of what we want, so this method uses a stack
-     * to reverse the path.
+    /**
+     * Another wrapper, except this one allows you to pass in an array (assumed
+     * to be an array of 33 booleans), and returns the solution to the
+     * corresponding puzzle (assuming it is a solvable configuration).
+     */
+    public String getSolution(boolean[] puzzle) {
+        HiRiQ temp = new HiRiQ((byte) 0); // To allow puzzle creation
+        temp.store(puzzle);
+        this.setPuzzle(temp);
+        this.solvePuzzle();
+        this.solved = true;
+        return this.solution.toString();
+    }
+
+    /**
+     * Builds a tree while looking for the solution. The path from the found
+     * solution to the start is the reverse of what we want, so this method uses
+     * a stack to reverse the path.
      */
     public void solvePuzzle() {
-        Node solvedState = this.game.solvePuzzle();
+        Node solvedState = this.game.solvePuzzle(); // Returns the node w/
+                                                    // solved configuration
         this.solution = new LinkedList<String>();
         this.reversedSolution = new Stack<String>();
         Node currentNode = solvedState;
         while (currentNode.parent != null) {
-            // Traverse back up the tree
+            // Traverse back up the tree until the root (which has a null
+            // parent), pushing the transformations onto the stack
             reversedSolution.push(currentNode.parent.tfRep());
-            
-            // This was done to decouple the edges from the nodes.
+
+            // first parent points to the Edge, second to the node
             currentNode = currentNode.parent.parent;
         }
+
+        // Reverse the solution to give the path from root -> solution
         while (!reversedSolution.empty()) {
-            // Pop off the stack, and create the linked list
             this.solution.add(this.reversedSolution.pop());
         }
-        solvedState.configuration.print();
+
+        solvedState.configuration.print(); // PRINTS CONFIG
     }
 }
